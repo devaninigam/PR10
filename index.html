@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>User Form</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>User Form</h1>
+    <form id="userForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" required><br>
+
+        <label for="phoneNumber">Phone Number:</label>
+        <input type="text" id="phoneNumber" required><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" required><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" required><br>
+
+        <button type="submit">Add User</button>
+    </form>
+    <table id="userTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Phone Number</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="userList"></tbody>
+    </table>
+
+    <script>
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+
+        function renderUsers() {
+            const userList = document.getElementById('userList');
+            userList.innerHTML = '';
+
+            users.map((user, index) => {
+                const row = document.createElement('tr');
+
+                const nameCell = document.createElement('td');
+                nameCell.textContent = user.name;
+                row.appendChild(nameCell);
+
+                const phoneNumberCell = document.createElement('td');
+                phoneNumberCell.textContent = user.phoneNumber;
+                row.appendChild(phoneNumberCell);
+
+                const emailCell = document.createElement('td');
+                emailCell.textContent = user.email;
+                row.appendChild(emailCell);
+
+                const actionsCell = document.createElement('td');
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Edit';
+                editButton.addEventListener('click', () => editUser(index));
+                actionsCell.appendChild(editButton);
+
+                const removeButton = document.createElement('button');
+                removeButton.textContent = 'Remove';
+                removeButton.addEventListener('click', () => removeUser(index));
+                actionsCell.appendChild(removeButton);
+
+                row.appendChild(actionsCell);
+
+                userList.appendChild(row);
+            });
+        }
+
+        function addUser(user) {
+            users.push(user);
+            localStorage.setItem('users', JSON.stringify(users));
+            renderUsers();
+        }
+
+        function editUser(index) {
+            const newUser = prompt('Enter the updated user details (name, phone number, email)');
+            if (newUser) {
+                const [name, phoneNumber, email] = newUser.split(',').map(value => value.trim());
+                users[index] = { name, phoneNumber, email, password };
+                localStorage.setItem('users', JSON.stringify(users));
+                renderUsers();
+            }
+        }
+
+        function removeUser(index) {
+            users.splice(index, 1);
+            localStorage.setItem('users', JSON.stringify(users));
+            renderUsers();
+        }
+
+        const userForm = document.getElementById('userForm');
+        userForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('name');
+            const phoneNumberInput = document.getElementById('phoneNumber');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+
+            console.log(passwordInput);
+            const name = nameInput.value;
+            const phoneNumber = phoneNumberInput.value;
+            const email = emailInput.value;
+            const password = passwordInput.value;
+
+            const user = { name, phoneNumber, email, password };
+            addUser(user);
+
+            nameInput.value = '';
+            phoneNumberInput.value = '';
+            emailInput.value = '';
+            passwordInput.value = '';
+        });
+
+        renderUsers();
+    </script>
+</body>
+
+</html>
